@@ -1,54 +1,76 @@
-use std::pin;
+use std::f64::consts::PI;
+
+#[derive(Debug)]
+pub struct Circle<T>{
+    pub r:T
+}
+
+#[derive(Debug)]
+pub struct Triangle<T,U,V>{
+    pub a:T,
+    pub b:U,
+    pub c:V,
+}
+
+#[derive(Debug)]
+pub struct Square<T>{
+    pub a:T,
+}
+
+pub trait AreaCalculate{
+    fn area(&self) -> f64;
+}
+
+impl<T> AreaCalculate for Circle<T>
+    where T: Copy + Into<f64> {
+    fn area(&self) -> f64 {
+        let r:f64=self.r.into();
+        PI * r * r
+    }
+}
+
+impl<T> AreaCalculate for Square<T>
+    where T: Copy + Into<f64> {
+    fn area(&self) -> f64 {
+        let a:f64 = self.a.into();
+        a * a
+    }
+}
+
+
+impl<T,U,V> AreaCalculate for Triangle<T,U,V>
+    where T:Copy + Into<f64>, U:Copy + Into<f64>, V:Copy + Into<f64>{
+    fn area(&self) -> f64 {
+        let a:f64=self.a.into();
+        let b:f64=self.b.into();
+        let c:f64=self.c.into();
+        let p=(a+b+c)/2.0;
+
+        (p*(p-a)*(p-b)*(p-c)).sqrt()
+    }
+}
+
+pub fn area<T: AreaCalculate>(shape: &T) -> f64{
+    shape.area()
+}
+
 
 fn main() {
 
-    let triangle = Triangle{
-        side:50,
-        altitude:60,
+    let circle=Circle{
+        r:10u8
     };
-    println!("The area of this triangle is {}",triangle.area());
+    println!("{:#?} \n area {}\n",circle,area(&circle));
 
-    let rectangle = Rectangle{
-        long: 30,
-        width: 40,
+    let triangle=Triangle{
+        a:3u32,
+        b:4.0f32,
+        c:5.00000000000001f64,
     };
-    println!("The area of this rectangle is {}",rectangle.area());
+    println!("{:#?} \n area {}\n",triangle,area(&triangle));
 
-    compute_area(triangle);
-    compute_area(rectangle);
-}
-
-pub trait Area {
-    fn area(&self)->u32;
-}
-
-
-struct Triangle{
-    side: u32,
-    altitude: u32,
-} 
-
-impl Area for Triangle {
-    fn area(&self) -> u32{
-        let area=  (self.side * self.altitude)/2;
-        area
-    }
-}
-
-struct Rectangle{
-    long: u32,
-    width: u32,
-}
-
-impl Area for Rectangle{
-    fn area(&self) -> u32{
-        let area =self.long * self.width;
-        area
-    }
-}
-
-fn compute_area<T:Area>(any:T){
-    println!("we can compute area of triangle and rectangle");
-    let area= any.area();
-    println!("the area of this tangle is {}",area);
+    let square=Square{
+        a:10u32,
+    };
+    println!("{:#?} \n area {}\n",square,area(&square));
 }
